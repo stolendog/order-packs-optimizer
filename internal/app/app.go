@@ -58,10 +58,6 @@ func (a *App) CalculatePacks(orderQuantity int) (*domain.PackingResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	packsUsed := make(map[domain.PackSize]int)
-	for size, count := range calculatedPacks {
-		packsUsed[domain.PackSize(size)] = count
-	}
 
-	return &domain.PackingResult{PacksUsed: packsUsed}, nil
+	return domain.NewPackingResult(calculatedPacks), nil
 }

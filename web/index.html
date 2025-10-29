@@ -103,7 +103,7 @@
 </head>
 
 <body>
-  <h1>Order Packs Calculator</h1>
+  <h1>Order Packs Optimizer</h1>
 
   <section class="card" id="pack-sizes-card">
     <h2>Pack Sizes</h2>
@@ -111,15 +111,7 @@
       <form id="sizes-form">
         <div id="sizes">
           <div class="size-row">
-            <label>Size 1:<input type="number" min="1" required name="sizes" /></label>
-            <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
-          </div>
-          <div class="size-row">
-            <label>Size 2:<input type="number" min="1" required name="sizes" /></label>
-            <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
-          </div>
-          <div class="size-row">
-            <label>Size 3:<input type="number" min="1" required name="sizes" /></label>
+            <label><input type="number" min="1" required name="sizes" /></label>
             <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
           </div>
         </div>
@@ -182,7 +174,7 @@
         const sizeRow = document.createElement('div');
         sizeRow.className = 'size-row';
         sizeRow.innerHTML = `
-          <label>Size ${index + 1}: <input type="number" min="1" required name="sizes" value="${size}" /></label>
+          <label>Size: <input type="number" min="1" required name="sizes" value="${size}" /></label>
           <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
         `;
         sizesDiv.appendChild(sizeRow);
@@ -196,7 +188,7 @@
       const sizeRow = document.createElement('div');
       sizeRow.className = 'size-row';
       sizeRow.innerHTML = `
-        <label>Size ${sizeCount}: <input type="number" min="1" required name="sizes" /></label>
+        <label>Size: <input type="number" min="1" required name="sizes" /></label>
         <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
       `;
 
@@ -223,7 +215,7 @@
         const label = row.querySelector('label');
         const input = row.querySelector('input');
         const currentValue = input.value;
-        label.innerHTML = `Size ${index + 1}: <input type="number" min="1" required name="sizes" value="${currentValue}" />`;
+        label.innerHTML = `Size: <input type="number" min="1" required name="sizes" value="${currentValue}" />`;
       });
     }
 
