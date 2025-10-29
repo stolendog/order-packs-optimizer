@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order Packs Calculator</title>
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 0 0 1rem
+    }
+
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin: 1rem 0
+    }
+
+    .card h2 {
+      margin: 0;
+      padding: .75rem 1rem;
+      background: #f3f3f3;
+      font-size: 1.1rem
+    }
+
+    .card .body {
+      padding: 1rem
+    }
+
+    label {
+      display: block;
+      margin: .5rem 0 .25rem
+    }
+
+    input[type="number"] {
+      width: 30%;
+      padding: .5rem;
+      font-size: 1rem
+    }
+
+    button {
+      background: #3aa256;
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: .6rem 1rem;
+      cursor: pointer
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem
+    }
+
+    th,
+    td {
+      border: 1px solid #e5e5e5;
+      padding: .6rem;
+      text-align: left
+    }
+
+    .size-row {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+
+    .size-row label {
+      flex: 1;
+      margin: 0;
+    }
+
+    .remove-btn {
+      background: #dc3545;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      padding: 0.4rem 0.8rem;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .add-btn {
+      background: #007bff;
+      color: #fff;
+      border: 0;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Order Packs Calculator</h1>
+
+  <section class="card" id="pack-sizes-card">
+    <h2>Pack Sizes</h2>
+    <div class="body">
+      <form id="sizes-form">
+        <div id="sizes">
+          <div class="size-row">
+            <label>Size 1:<input type="number" min="1" required name="sizes" /></label>
+            <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
+          </div>
+          <div class="size-row">
+            <label>Size 2:<input type="number" min="1" required name="sizes" /></label>
+            <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
+          </div>
+          <div class="size-row">
+            <label>Size 3:<input type="number" min="1" required name="sizes" /></label>
+            <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
+          </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addSize()">Add Size</button>
+        <button type="submit">Submit pack sizes change</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Calculate packs for order</h2>
+    <div class="body">
+      <form id="calc-form">
+        <label>Items:
+          <input id="items" type="number" min="1" required />
+        </label>
+        <button type="submit">Calculate</button>
+      </form>
+
+      <table id="result" aria-live="polite">
+        <thead>
+          <tr>
+            <th>Pack</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    const sizesForm = document.getElementById('sizes-form');
+    const calcForm = document.getElementById('calc-form');
+    const resultTbody = document.querySelector('#result tbody');
+
+    let packSizes = []; // local cache
+
+    async function loadPackSizes() {
+      try {
+        const res = await fetch('/api/packs');
+        const data = await res.json();
+
+        if (data.packs && data.packs.length > 0) {
+          packSizes = data.packs.map(p => p.size);
+          populateSizesForm();
+
+          <!-- console.log('Loaded pack sizes:', packSizes); -->
+        }
+      } catch (error) {
+        console.error('Failed to load pack sizes:', error);
+      }
+    }
+
+    function populateSizesForm() {
+      const sizesDiv = document.getElementById('sizes');
+      sizesDiv.innerHTML = '';
+
+      packSizes.forEach((size, index) => {
+        const sizeRow = document.createElement('div');
+        sizeRow.className = 'size-row';
+        sizeRow.innerHTML = `
+          <label>Size ${index + 1}: <input type="number" min="1" required name="sizes" value="${size}" /></label>
+          <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
+        `;
+        sizesDiv.appendChild(sizeRow);
+      });
+    }
+
+    function addSize() {
+      const sizesDiv = document.getElementById('sizes');
+      const sizeCount = sizesDiv.children.length + 1;
+
+      const sizeRow = document.createElement('div');
+      sizeRow.className = 'size-row';
+      sizeRow.innerHTML = `
+        <label>Size ${sizeCount}: <input type="number" min="1" required name="sizes" /></label>
+        <button type="button" class="remove-btn" onclick="removeSize(this)">Remove</button>
+      `;
+
+      sizesDiv.appendChild(sizeRow);
+      updateSizeLabels();
+    }
+
+    function removeSize(button) {
+      const sizesDiv = document.getElementById('sizes');
+
+      // Prevent removing if only one size remains
+      if (sizesDiv.children.length <= 1) {
+        alert('At least one pack size is required');
+        return;
+      }
+
+      button.parentElement.remove();
+      updateSizeLabels();
+    }
+
+    function updateSizeLabels() {
+      const sizesDiv = document.getElementById('sizes');
+      Array.from(sizesDiv.children).forEach((row, index) => {
+        const label = row.querySelector('label');
+        const input = row.querySelector('input');
+        const currentValue = input.value;
+        label.innerHTML = `Size ${index + 1}: <input type="number" min="1" required name="sizes" value="${currentValue}" />`;
+      });
+    }
+
+
+    document.addEventListener('DOMContentLoaded', loadPackSizes);
+
+
+    sizesForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const values = [...sizesForm.querySelectorAll('input[name="sizes"]')]
+        .map(i => Number(i.value))
+        .filter(n => Number.isFinite(n) && n > 0);
+
+      packSizes = values;
+
+      try {
+        const res = await fetch('/api/packs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ packs: packSizes })
+        });
+
+        if (res.status === 204) {
+          alert('Pack sizes saved: ' + packSizes.join(', '));
+        } else {
+          const errorText = await res.text();
+          alert('Error saving pack sizes: ' + (errorText || `HTTP ${res.status}`));
+        }
+      } catch (error) {
+        alert('Failed to save pack sizes: ' + error.message);
+      }
+    });
+
+    calcForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const items = Number(document.getElementById('items').value);
+      if (!Number.isFinite(items) || items <= 0) return;
+
+      const res = await fetch('/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_quantity: items })
+      });
+      const data = await res.json();
+
+      resultTbody.innerHTML = '';
+      data.packs_used.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row.pack_size}</td><td>${row.quantity}</td>`;
+        resultTbody.appendChild(tr);
+      });
+    });
+  </script>
+</body>
+
+</html>
