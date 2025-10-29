@@ -52,3 +52,5 @@ __debug*
 
 .vs
 *__debug_bin*
+
+fly.toml
