@@ -27,3 +27,32 @@ func TestPack(t *testing.T) {
 		}
 	})
 }
+
+func TestPackList(t *testing.T) {
+	t.Run("Valid PackList Creation", func(t *testing.T) {
+		packs := []Pack{
+			{Size: 100},
+			{Size: 200},
+			{Size: 500},
+		}
+		packList, err := NewPackList(packs)
+		if err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if len(packList.Packs) != 3 {
+			t.Errorf("expected 3 packs in the list, got %v", len(packList.Packs))
+		}
+	})
+
+	t.Run("Invalid PackList Creation - Duplicate Sizes", func(t *testing.T) {
+		packs := []Pack{
+			{Size: 100},
+			{Size: 200},
+			{Size: 100}, // duplicate
+		}
+		_, err := NewPackList(packs)
+		if err == nil {
+			t.Fatalf("expected error for duplicate pack sizes, got none")
+		}
+	})
+}

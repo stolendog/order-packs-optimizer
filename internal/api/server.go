@@ -23,7 +23,6 @@ func Start(app *app.App) error {
 		http.ServeFile(w, r, "web/index.html")
 	})
 
-	// TODO remove this endpoint?
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
@@ -49,7 +48,7 @@ func Start(app *app.App) error {
 		}
 
 		var req CalculatePacksRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil { // TODO do we need each time new decoder?
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "Bad Request: "+err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -63,7 +62,7 @@ func Start(app *app.App) error {
 		packsUsed := make([]PackUsage, 0, len(result.PacksUsed))
 		for size, quantity := range result.PacksUsed {
 			packsUsed = append(packsUsed, PackUsage{
-				PackSize: int(size), // TODO is this safe?
+				PackSize: int(size),
 				Quantity: quantity,
 			})
 		}

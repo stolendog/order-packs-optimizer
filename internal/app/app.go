@@ -7,6 +7,8 @@ type Calculator interface {
 }
 
 // For simple calculator app maybe this is overkill but wanted to keep more closely to clean architecture principles
+// It can be extended later with more business logic if needed
+// It use injection to be testable and flexible
 
 type App struct {
 	calculator Calculator
@@ -22,6 +24,7 @@ func NewApp(calculator Calculator, repo domain.Repository) *App {
 }
 
 func (a *App) StorePackList(packs []domain.Pack) error {
+	// validate and create PackList
 	packList, err := domain.NewPackList(packs)
 	if err != nil {
 		return err
