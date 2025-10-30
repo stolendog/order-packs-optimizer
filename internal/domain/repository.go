@@ -1,6 +1,6 @@
 package domain
 
 type Repository interface {
-	SetPacks([]Pack) error
+	ReplacePacks([]Pack) error
 	GetAllPacks() ([]Pack, error)
 }

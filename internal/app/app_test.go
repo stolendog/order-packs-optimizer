@@ -19,7 +19,7 @@ type mockRepository struct {
 	packs      []domain.Pack
 }
 
-func (m *mockRepository) SetPacks(packs []domain.Pack) error {
+func (m *mockRepository) ReplacePacks(packs []domain.Pack) error {
 	if m.storeError != nil {
 		return m.storeError
 	}
@@ -34,7 +34,7 @@ func (m *mockRepository) GetAllPacks() ([]domain.Pack, error) {
 	return m.packs, nil
 }
 
-// this is not full coverage unit tests for app layer just basic show of unit test structure and usage of mocks
+// this is not full coverage unit tests for app layer just basic show of unit test structure and usage of dependency injection mocks
 func TestApp(t *testing.T) {
 	repo := &mockRepository{}
 	calculator := &mockCalculator{}

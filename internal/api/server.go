@@ -24,6 +24,10 @@ func Start(app *app.App) error {
 	})
 
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
@@ -62,7 +66,7 @@ func Start(app *app.App) error {
 		packsUsed := make([]PackUsage, 0, len(result.PacksUsed))
 		for size, quantity := range result.PacksUsed {
 			packsUsed = append(packsUsed, PackUsage{
-				PackSize: int(size),
+				PackSize: size,
 				Quantity: quantity,
 			})
 		}
@@ -84,11 +88,15 @@ func Start(app *app.App) error {
 }
 
 func respondJSON(w http.ResponseWriter, status int, data any) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, "failed to encode JSON", http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		http.Error(w, "failed to encode JSON", http.StatusInternalServerError)
-	}
+	w.Write(jsonData)
 }
 
 func handleGetPacks(app *app.App, w http.ResponseWriter, r *http.Request) {
@@ -101,7 +109,7 @@ func handleGetPacks(app *app.App, w http.ResponseWriter, r *http.Request) {
 	packs := make([]PackInfo, 0, len(packList))
 	for _, pack := range packList {
 		packs = append(packs, PackInfo{
-			Size: int(pack.Size),
+			Size: pack.Size,
 		})
 	}
 	respondJSON(w, http.StatusOK, PackListResponse{Packs: packs})
@@ -114,7 +122,7 @@ func handlePostPacks(app *app.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var packs []domain.Pack
+	packs := make([]domain.Pack, 0, len(req.Packs))
 	for _, packSize := range req.Packs {
 		pack, err := domain.NewPack(packSize)
 		if err != nil {

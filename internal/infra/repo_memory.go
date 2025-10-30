@@ -17,7 +17,7 @@ func NewMemoryRepository() *MemoryRepository {
 	}
 }
 
-func (r *MemoryRepository) SetPacks(packs []domain.Pack) error {
+func (r *MemoryRepository) ReplacePacks(packs []domain.Pack) error {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 

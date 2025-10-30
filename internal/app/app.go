@@ -30,7 +30,7 @@ func (a *App) StorePackList(packs []domain.Pack) error {
 		return err
 	}
 
-	err = a.repo.SetPacks(packList.Packs)
+	err = a.repo.ReplacePacks(packList.Packs)
 	if err != nil {
 		return err
 	}

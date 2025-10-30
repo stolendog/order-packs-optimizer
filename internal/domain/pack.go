@@ -24,11 +24,13 @@ func NewPackingResult(packsUsed map[int]int) *PackingResult {
 }
 
 // PackList holds a list of available packs and ensures no duplicate sizes exist.
+// for now only used in writing operation but can be extended for more business logic if needed
 type PackList struct {
 	Packs []Pack
 }
 
 // invariant: no duplicate pack sizes in the list
+// for now its enough to have constructor enforcing this invariant
 func NewPackList(packs []Pack) (*PackList, error) {
 	seen := make(map[int]bool)
 
